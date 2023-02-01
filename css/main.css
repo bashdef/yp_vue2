@@ -6,3 +6,7 @@ body {
 #row {
     border: 1px solid black;
 }
+
+.pointCompleted {
+    text-decoration: line-through;
+}

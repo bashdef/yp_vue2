@@ -13,11 +13,17 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="container-xl text-center">
+    <div class="container-xl text-center" id="app">
         <div class="row row-cols-3" id="row">
-            <div class="col"></div>
-            <div class="col"></div>
-            <div class="col"></div>
+            <div class="col">
+                <card :progress='progress[0]'></card>
+            </div>
+            <div class="col">
+                <card :progress='progress[1]'></card>
+            </div>
+            <div class="col">
+                <card :progress='progress[2]'></card>
+            </div>
         </div>
     </div>
 </body>

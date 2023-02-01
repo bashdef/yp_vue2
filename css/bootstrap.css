@@ -789,6 +789,7 @@ progress {
 
 .col {
   height: 90vh;
+  border: 1px solid black;
   flex: 1 0 0%;
 }
 

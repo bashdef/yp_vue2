@@ -1,64 +1,82 @@
-Vue.component('add-card', {
+let eventBus = new Vue()
+
+Vue.component('new-card', {
+    props: {
+        cards: '',
+        progress: ''
+    },
     template: `
-    <div class="input-group mb-3">
-        <input class="form-control" type="text" v-model="name">
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-text">
-            <input class="form-check-input mt-0" type="checkbox" value="" v-model="check">
+        <div>
+            <form action="" @submit.prevent="addCard">
+                <input type="text" placeholder="Введите заголовок карточки" v-model="cardTitle">
+                <input type="text" placeholder="Введите пункт списка" v-model="cardPoint">
+                <button type="submit" @click="addCard"></button>
+            </form>
         </div>
-        <input class="form-control" type="text" v-model="point">
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-text">
-            <input class="form-check-input mt-0" type="checkbox" value="" v-model="check">
-        </div>
-        <input class="form-control" type="text" v-model="point">
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-text">
-            <input class="form-check-input mt-0" type="checkbox" value="" v-model="check">
-        </div>
-        <input class="form-control" type="text" v-model="point">
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-text">
-            <input class="form-check-input mt-0" type="checkbox" value="" v-model="check">
-        </div>
-        <input class="form-control" type="text" v-model="point">
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-text">
-            <input class="form-check-input mt-0" type="checkbox" value="" v-model="check">
-        </div>
-        <input class="form-control" type="text" v-model="point">
-    </div>
     `,
     data() {
         return {
-            check: null,
-            point: null,
-            name: null
+            cardTitle: '',
+            cardPoint: '',
         }
     },
     methods: {
-        onSubmit() {
-            if(this.name && this.check && this.point) {
-
+        addCard() {
+            if(this.cardTitle && this.cardPoint){
+                let newCard = {
+                    cardTitle: this.cardTitle,
+                    cardPoint: this.cardPoint,
+                    progress: '<50%'
+                }
+                eventBus.$emit('add-card', newCard)
+                this.cardTitle = null
+                this.cardPoint = null
             }
         }
     }
 })
 
 Vue.component('card', {
+    props: {
+        progress: ''
+    },
     template: `
-        
-    `
+        <div>
+            <div v-for="card in cards" v-show="card.progress == progress">
+                <h5>{{card.cardTitle}}</h5>
+                <ul>
+                    <li v-for="point in cards" :class="{pointCompleted: point.pointStatus}" @click="donePoint(card, point)">
+                        {{point.cardPoint}}
+                    </li>
+                </ul>
+            </div>
+            <new-card :cards="cards" :progress="progress"></new-card>
+        </div>
+    `,
+    data() {
+        return {
+            cards: []
+        }
+    },
+    methods: {
+        donePoint(point, card) {
+            if(point.pointStatus == false) {
+                point.pointStatus = true
+            } else {
+                point.pointStatus = false
+            }
+        }
+    },
+    mounted() {
+        eventBus.$on('add-card', newCard => {
+            this.cards.push(newCard)
+        })
+    }
 })
 
 let app = new Vue({
     el: '#app',
     data: {
-        count: null
+        progress: ['<50%', '>50%', '100%']
     }
 })
