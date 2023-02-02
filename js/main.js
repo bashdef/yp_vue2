@@ -1,36 +1,40 @@
 let eventBus = new Vue()
 
 Vue.component('new-card', {
-    props: {
-        cards: '',
-        progress: ''
-    },
     template: `
-        <div>
-            <form action="" @submit.prevent="addCard">
-                <input type="text" placeholder="Введите заголовок карточки" v-model="cardTitle">
-                <input type="text" placeholder="Введите пункт списка" v-model="cardPoint">
-                <button type="submit" @click="addCard"></button>
-            </form>
-        </div>
+    <div>
+        <form @submit.prevent="addCard">
+            <input type="text" placeholder="Введите заголовок карточки" v-model="title">
+            <textarea placeholder="Введите пункты списка" v-model="points"></textarea>
+            <button class="btn btn-success" type="submit" @click="addCard">Создать</button>
+        </form>
+    </div>
     `,
     data() {
         return {
-            cardTitle: '',
-            cardPoint: '',
+            title: '',
+            points: []
         }
     },
     methods: {
         addCard() {
-            if(this.cardTitle && this.cardPoint){
+            if(this.title && this.points){
+                let arr = this.points.split("\n")
+                let newPoints = []
+                for(let i in arr){
+                    let point = {
+                        pointTitle: arr[i],
+                        pointStatus: false
+                    }
+                    newPoints.push(point)
+                }
                 let newCard = {
-                    cardTitle: this.cardTitle,
-                    cardPoint: this.cardPoint,
-                    progress: '<50%'
+                    title: this.title,
+                    points: newPoints
                 }
                 eventBus.$emit('add-card', newCard)
-                this.cardTitle = null
-                this.cardPoint = null
+                this.title = ''
+                this.points = []
             }
         }
     }
@@ -42,34 +46,40 @@ Vue.component('card', {
     },
     template: `
         <div>
-            <div v-for="card in cards" v-show="card.progress == progress">
-                <h5>{{card.cardTitle}}</h5>
-                <ul>
-                    <li v-for="point in cards" :class="{pointCompleted: point.pointStatus}" @click="donePoint(card, point)">
-                        {{point.cardPoint}}
-                    </li>
-                </ul>
+            <div v-for="card in firstCards" v-show="card.progress == progress">
+                {{card.progress}}
             </div>
-            <new-card :cards="cards" :progress="progress"></new-card>
+            <div v-for="card in secondCards" v-show="card.progress == progress">
+                {{card.progress}}
+            </div>
+            <div v-for="card in thirdCards" v-show="card.progress == progress">
+                {{card.progress}}
+            </div>
         </div>
     `,
     data() {
         return {
-            cards: []
-        }
-    },
-    methods: {
-        donePoint(point, card) {
-            if(point.pointStatus == false) {
-                point.pointStatus = true
-            } else {
-                point.pointStatus = false
-            }
+            firstCards: [
+                {
+                    progress: '<50%'
+                }
+            ],
+            secondCards: [
+                {
+                    progress: '>50%'
+                }
+            ],
+            thirdCards: [
+                {
+                    progress: '100%'
+                }
+            ]
         }
     },
     mounted() {
         eventBus.$on('add-card', newCard => {
-            this.cards.push(newCard)
+            this.firstCards.push(newCard)
+            console.log(this.firstCards)
         })
     }
 })

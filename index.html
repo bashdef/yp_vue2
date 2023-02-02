@@ -14,15 +14,16 @@
 </head>
 <body>
     <div class="container-xl text-center" id="app">
+        <new-card></new-card>
         <div class="row row-cols-3" id="row">
             <div class="col">
-                <card :progress='progress[0]'></card>
+                <card :progress="progress[0]"></card>
             </div>
             <div class="col">
-                <card :progress='progress[1]'></card>
+                <card :progress="progress[1]"></card>
             </div>
             <div class="col">
-                <card :progress='progress[2]'></card>
+                <card :progress="progress[2]"></card>
             </div>
         </div>
     </div>
