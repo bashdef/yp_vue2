@@ -1,5 +1,57 @@
 let eventBus = new Vue()
 
+Vue.component('modal', {
+    template: `
+      <transition name="modal-fade">
+        <div class="modal-backdrop">
+          <div class="modal"
+          >
+            <header
+              class="modal-header"
+            >
+              <slot name="header">
+                <button
+                  type="button"
+                  class="btn-close"
+                  @click="close"
+                  aria-label="Close modal"
+                >
+                  x
+                </button>
+              </slot>
+            </header>
+            <section
+              class="modal-body"
+            >
+              <slot name="body">
+              </slot>
+            </section>
+            <footer class="modal-footer">
+              <slot name="footer">
+                <button
+                  type="button"
+                  class="btn-green"
+                  @click="close"
+                  aria-label="Close modal"
+                >
+                  Close me!
+                </button>
+              </slot>
+            </footer>
+          </div>
+        </div>
+      </transition>
+    `,
+    methods: {
+        close() {
+            this.$emit('close')
+        }
+    },
+    props: {
+        firstCards: ''
+    }
+})
+
 Vue.component('new-card', {
     props: {
         progress: ''
@@ -18,7 +70,7 @@ Vue.component('new-card', {
         return {
             title: '',
             points: [],
-            errors: []
+            errors: [],
         }
     },
     methods: {
@@ -37,7 +89,7 @@ Vue.component('new-card', {
                     let newCard = {
                         title: this.title,
                         points: newPoints,
-                        progress: '<50%'
+                        progress: '<50%',
                     }
                     eventBus.$emit('add-card', newCard)
                     this.title = ''
@@ -55,16 +107,43 @@ Vue.component('card', {
     template: `
         <div>
             <div v-for="card in firstCards" v-show="card.progress == progress">
-                {{card.title}}
-                <ul>
-                    <li v-for="point in card.points">{{point.pointTitle}}</li>
-                </ul>
+                <button
+                  type="button"
+                  class="btn"
+                  @click="showModal"
+                >
+                    {{card.title}}
+                </button>
+                <modal
+                  v-show="isModalVisible"
+                  @close="closeModal"
+                />
             </div>
-            <div v-for="card in secondCards" v-show="card.progress == progress">
-                {{card.title}}
+            <div v-for="card in firstCards" v-show="card.progress == progress">
+                <button
+                  type="button"
+                  class="btn"
+                  @click="showModal"
+                >
+                    {{card.title}}
+                </button>
+                <modal
+                  v-show="isModalVisible"
+                  @close="closeModal"
+                />
             </div>
-            <div v-for="card in thirdCards" v-show="card.progress == progress">
-                {{card.title}}
+            <div v-for="card in firstCards" v-show="card.progress == progress">
+                <button
+                  type="button"
+                  class="btn"
+                  @click="showModal"
+                >
+                    {{card.title}}
+                </button>
+                <modal
+                  v-show="isModalVisible"
+                  @close="closeModal"
+                />
             </div>
         </div>
     `,
@@ -72,7 +151,17 @@ Vue.component('card', {
         return {
             firstCards: [],
             secondCards: [],
-            thirdCards: []
+            thirdCards: [],
+            complete: false,
+            isModalVisible: false
+        }
+    },
+    methods: {
+        showModal() {
+            this.isModalVisible = true
+        },
+        closeModal() {
+            this.isModalVisible = false
         }
     },
     mounted() {
@@ -85,6 +174,6 @@ Vue.component('card', {
 let app = new Vue({
     el: '#app',
     data: {
-        progress: ['<50%', '>50%', '100%']
+        progress: ['<50%', '>50%', '100%'],
     }
 })
