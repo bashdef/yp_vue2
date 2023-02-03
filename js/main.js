@@ -6,64 +6,97 @@ Vue.component('new-card', {
     },
     template: `
     <div>
-        <form action="" @submit.prevent="itemNumber">
-            <input type="text" placeholder="Введите кол-во пунктов списка (от 3 до 5)" v-model="itemNumber">
-        </form>
-        <form action="" @submit.prevent="addCard">
-            <input type="text" v-model="cardTitle" placeholder="Заголовок карточки">
-            <input type="text" v-model="item1" placeholder="Пункт первый" v-show="itemNumber >= 3">
-            <input type="text" v-model="item2" placeholder="Пункт второй" v-show="itemNumber >= 3">
-            <input type="text" v-model="item3" placeholder="Пункт третий" v-show="itemNumber >= 3">
-            <input type="text" v-model="item4" placeholder="Пункт четвертый" v-show="itemNumber >= 4">
-            <input type="text" v-model="item5" placeholder="Пункт пятый" v-show="itemNumber == 5">
-            <button type="submit" @click="addCard" class="btn">Создать</button>
-        </form>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          Создать карточку
+        </button>
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="input-group mb-3">
+                  <input type="text" class="form-control" aria-label="Text input with checkbox" v-model="cardTitle">
+                </div>
+                <div class="input-group mb-3">
+                  <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" v-model="checked1">
+                  </div>
+                  <input type="text" class="form-control" aria-label="Text input with checkbox" v-model="item1" v-show="checked3 == true">
+                </div>
+                <div class="input-group mb-3">
+                  <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" v-model="checked2">
+                  </div>
+                  <input type="text" class="form-control" aria-label="Text input with checkbox" v-model="item2" v-show="checked3 == true">
+                </div>
+                <div class="input-group mb-3">
+                  <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" v-model="checked3">
+                  </div>
+                  <input type="text" class="form-control" aria-label="Text input with checkbox" v-model="item3" v-show="checked3 == true">
+                </div>
+                <div class="input-group mb-3">
+                  <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" v-model="checked4">
+                  </div>
+                  <input type="text" class="form-control" aria-label="Text input with checkbox" v-model="item4" v-show="checked4 == true">
+                </div>
+                <div class="input-group mb-3">
+                  <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" v-model="checked5">
+                  </div>
+                  <input type="text" class="form-control" aria-label="Text input with checkbox" v-model="item5" v-show="checked5 == true">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-outline-success" @click="addCard">Создать</button>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
     `,
     data() {
         return {
-            cardTitle: '',
-            itemNumber: '',
+            cardTitle: null,
+            selected: null,
+            checked1: false,
+            checked2: false,
+            checked3: false,
+            checked4: false,
+            checked5: false,
             item1: '',
             item2: '',
             item3: '',
             item4: '',
             item5: '',
+            items: null,
             errors: [],
         }
     },
     methods: {
         addCard() {
-            if(this.itemNumber >= 3 && this.itemNumber <= 5){
-                let newCard = {
-                    cardTitle: this.cardTitle,
-                    items: [
-                        {
-                            itemTitle: this.item1, complete: false
-                        },
-                        {
-                            itemTitle: this.item2, complete: false
-                        },
-                        {
-                            itemTitle: this.item3, complete: false
-                        },
-                        {
-                            itemTitle: this.item4, complete: false
-                        },
-                        {
-                            itemTitle: this.item5, complete: false
-                        }
-                    ],
-                    progress: '<50%'
+            let arr = []
+            let newArr = []
+            arr.push(this.item1, this.item2, this.item3, this.item4, this.item5)
+            for(let i in arr) {
+                let item = {
+                    itemTitle: arr[i],
+                    itemStatus: false
                 }
-                eventBus.$emit('new-card', newCard)
-                this.cardTitle = null
-                this.item1 = null
-                this.item2 = null
-                this.item3 = null
-                this.item4 = null
-                this.item5 = null
+                newArr.push(item)
             }
+            let newCard = {
+                cardTitle: this.cardTitle,
+                items: newArr
+            }
+            eventBus.$emit('add-card', newCard)
+            this.title = null
+            this.items = null
         }
     }
 })
@@ -71,26 +104,35 @@ Vue.component('new-card', {
 Vue.component('col-1', {
     template: `
     <div>
+        <button class="btn btn-primary" @click="moveCard">Check</button>
         <div v-for="card in firstCards">
-            <p>{{card.cardTitle}}</p>
-            <ul>
-                <p v-for="item in card.items" :class="[isComplete ? 'text-success' : '', 'text-danger']" @click="isComplete(item)">{{item.itemTitle}}</p>
-            </ul>
+            <p>
+               <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                {{card.cardTitle}}
+               </a>
+            </p>
+            <div class="collapse" id="collapseExample">
+              <div class="card card-body">
+                <ul>  
+                    <li v-for="item in card.items" v-show="item.itemTitle != ''"><a href="#" @click="isComplete(item)" v-bind:class="{'text-success text-decoration-none': item.itemStatus, 'text-danger text-decoration-none': !item.itemStatus}">{{item.itemTitle}}</a></li>
+                </ul>
+              </div>
+            </div>
         </div>
     </div>
     `,
     mounted() {
-        eventBus.$on('new-card', newCard => {
+        eventBus.$on('add-card', newCard => {
             this.firstCards.push(newCard)
         })
     },
     methods: {
         isComplete(item) {
-            if(item.complete === false) {
-                item.complete = true
-                console.log(item.complete)
-            } else {
-                item.complete = false
+            item.itemStatus = !item.itemStatus
+        },
+        moveCard() {
+            if(this.firstCards){
+                console.log(this.firstCards)
             }
         }
     },
