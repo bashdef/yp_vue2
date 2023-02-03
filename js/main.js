@@ -1,173 +1,103 @@
 let eventBus = new Vue()
 
-Vue.component('modal', {
-    template: `
-      <transition name="modal-fade">
-        <div class="modal-backdrop">
-          <div class="modal"
-          >
-            <header
-              class="modal-header"
-            >
-              <slot name="header">
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="close"
-                  aria-label="Close modal"
-                >
-                  x
-                </button>
-              </slot>
-            </header>
-            <section
-              class="modal-body"
-            >
-              <slot name="body">
-              </slot>
-            </section>
-            <footer class="modal-footer">
-              <slot name="footer">
-                <button
-                  type="button"
-                  class="btn-green"
-                  @click="close"
-                  aria-label="Close modal"
-                >
-                  Close me!
-                </button>
-              </slot>
-            </footer>
-          </div>
-        </div>
-      </transition>
-    `,
-    methods: {
-        close() {
-            this.$emit('close')
-        }
-    },
-    props: {
-        firstCards: ''
-    }
-})
-
 Vue.component('new-card', {
     props: {
         progress: ''
     },
     template: `
     <div>
-        <form @submit.prevent="addCard">
-            <p v-for="error in errors">{{ error }}</p>
-            <input type="text" placeholder="Введите заголовок карточки" v-model="title"><br>
-            <textarea placeholder="Введите пункты списка (не меньше 3 и не больше 5)" v-model="points"></textarea><br>
-            <button class="btn btn-success" type="submit" @click="addCard">Создать</button>
+        <form action="" @submit.prevent="itemNumber">
+            <input type="text" placeholder="Введите кол-во пунктов списка (от 3 до 5)" v-model="itemNumber">
+        </form>
+        <form action="" @submit.prevent="addCard">
+            <input type="text" v-model="cardTitle" placeholder="Заголовок карточки">
+            <input type="text" v-model="item1" placeholder="Пункт первый" v-show="itemNumber >= 3">
+            <input type="text" v-model="item2" placeholder="Пункт второй" v-show="itemNumber >= 3">
+            <input type="text" v-model="item3" placeholder="Пункт третий" v-show="itemNumber >= 3">
+            <input type="text" v-model="item4" placeholder="Пункт четвертый" v-show="itemNumber >= 4">
+            <input type="text" v-model="item5" placeholder="Пункт пятый" v-show="itemNumber == 5">
+            <button type="submit" @click="addCard" class="btn">Создать</button>
         </form>
     </div>
     `,
     data() {
         return {
-            title: '',
-            points: [],
+            cardTitle: '',
+            itemNumber: '',
+            item1: '',
+            item2: '',
+            item3: '',
+            item4: '',
+            item5: '',
             errors: [],
         }
     },
     methods: {
         addCard() {
-            if(this.title && this.points){
-                let arr = this.points.split("\n")
-                let newPoints = []
-                for(let i in arr){
-                    let point = {
-                        pointTitle: arr[i],
-                        pointStatus: false
-                    }
-                    newPoints.push(point)
+            if(this.itemNumber >= 3 && this.itemNumber <= 5){
+                let newCard = {
+                    cardTitle: this.cardTitle,
+                    items: [
+                        {
+                            itemTitle: this.item1, complete: false
+                        },
+                        {
+                            itemTitle: this.item2, complete: false
+                        },
+                        {
+                            itemTitle: this.item3, complete: false
+                        },
+                        {
+                            itemTitle: this.item4, complete: false
+                        },
+                        {
+                            itemTitle: this.item5, complete: false
+                        }
+                    ],
+                    progress: '<50%'
                 }
-                if(newPoints.length >= 3 && newPoints.length <= 5){
-                    let newCard = {
-                        title: this.title,
-                        points: newPoints,
-                        progress: '<50%',
-                    }
-                    eventBus.$emit('add-card', newCard)
-                    this.title = ''
-                    this.points = []
-                }
+                eventBus.$emit('new-card', newCard)
+                this.cardTitle = null
+                this.item1 = null
+                this.item2 = null
+                this.item3 = null
+                this.item4 = null
+                this.item5 = null
             }
         }
     }
 })
 
-Vue.component('card', {
-    props: {
-        progress: ''
-    },
+Vue.component('col-1', {
     template: `
-        <div>
-            <div v-for="card in firstCards" v-show="card.progress == progress">
-                <button
-                  type="button"
-                  class="btn"
-                  @click="showModal"
-                >
-                    {{card.title}}
-                </button>
-                <modal
-                  v-show="isModalVisible"
-                  @close="closeModal"
-                />
-            </div>
-            <div v-for="card in firstCards" v-show="card.progress == progress">
-                <button
-                  type="button"
-                  class="btn"
-                  @click="showModal"
-                >
-                    {{card.title}}
-                </button>
-                <modal
-                  v-show="isModalVisible"
-                  @close="closeModal"
-                />
-            </div>
-            <div v-for="card in firstCards" v-show="card.progress == progress">
-                <button
-                  type="button"
-                  class="btn"
-                  @click="showModal"
-                >
-                    {{card.title}}
-                </button>
-                <modal
-                  v-show="isModalVisible"
-                  @close="closeModal"
-                />
-            </div>
+    <div>
+        <div v-for="card in firstCards">
+            <p>{{card.cardTitle}}</p>
+            <ul>
+                <p v-for="item in card.items" :class="[isComplete ? 'text-success' : '', 'text-danger']" @click="isComplete(item)">{{item.itemTitle}}</p>
+            </ul>
         </div>
+    </div>
     `,
-    data() {
-        return {
-            firstCards: [],
-            secondCards: [],
-            thirdCards: [],
-            complete: false,
-            isModalVisible: false
-        }
-    },
-    methods: {
-        showModal() {
-            this.isModalVisible = true
-        },
-        closeModal() {
-            this.isModalVisible = false
-        }
-    },
     mounted() {
-        eventBus.$on('add-card', newCard => {
+        eventBus.$on('new-card', newCard => {
             this.firstCards.push(newCard)
         })
+    },
+    methods: {
+        isComplete(item) {
+            if(item.complete === false) {
+                item.complete = true
+                console.log(item.complete)
+            } else {
+                item.complete = false
+            }
+        }
+    },
+    data() {
+        return {
+            firstCards: []
+        }
     }
 })
 
