@@ -77,7 +77,8 @@ Vue.component('new-card', {
             items: null,
             errors: [],
             completeCard: false,
-            progress: 0
+            progress: 0,
+            id: 0
         }
     },
     methods: {
@@ -96,9 +97,11 @@ Vue.component('new-card', {
                 cardTitle: this.cardTitle,
                 items: newArr,
                 completeCard: this.completeCard,
-                progress: this.progress
+                progress: this.progress,
+                id: this.id
             }
             eventBus.$emit('add-card', newCard)
+            this.id += 1
             this.title = null
             this.items = null
         }
@@ -148,7 +151,8 @@ Vue.component('col-1', {
                     cardTitle: card.cardTitle,
                     items: card.items,
                     progress: card.progress,
-                    completeCard: card.completeCard
+                    completeCard: card.completeCard,
+                    id: card.id
                 }
                 eventBus.$emit('add-second-card', secondCard)
                 this.cardTitle = null
@@ -162,7 +166,8 @@ Vue.component('col-1', {
             items: null,
             completeCard: false,
             cardTitle: null,
-            progress: 0
+            progress: 0,
+            id: 0
         }
     }
 })
@@ -193,7 +198,8 @@ Vue.component('col-2', {
             items: null,
             completeCard: false,
             cardTitle: null,
-            progress: 0
+            progress: 0,
+            id: 0
         }
     },
     mounted() {
@@ -218,7 +224,8 @@ Vue.component('col-2', {
                     cardTitle: card.cardTitle,
                     items: card.items,
                     progress: card.progress,
-                    completeCard: card.completeCard
+                    completeCard: card.completeCard,
+                    id: card.id
                 }
                 eventBus.$emit('add-third-card', thirdCard)
                 this.cardTitle = null
