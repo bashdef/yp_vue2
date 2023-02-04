@@ -78,7 +78,7 @@ Vue.component('new-card', {
             errors: [],
             completeCard: false,
             progress: 0,
-            id: 0
+            id: 0,
         }
     },
     methods: {
@@ -98,7 +98,7 @@ Vue.component('new-card', {
                 items: newArr,
                 completeCard: this.completeCard,
                 progress: this.progress,
-                id: this.id
+                id: this.id,
             }
             eventBus.$emit('add-card', newCard)
             this.id += 1
@@ -112,7 +112,6 @@ Vue.component('col-1', {
     template: `
     <div>
         <div v-for="card in firstCards">
-            <button type="submit" class="btn btn-primary" @click="moveCard(card)">Check</button>
             <p>
                <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                 {{card.cardTitle}}
@@ -121,7 +120,7 @@ Vue.component('col-1', {
             <div class="collapse" id="collapseExample">
               <div class="card card-body">
                 <ul>  
-                    <li v-for="item in card.items" v-show="item.itemTitle != ''"><a href="#" @click="isComplete(item)" v-bind:class="{'text-success text-decoration-none': item.itemStatus, 'text-danger text-decoration-none': !item.itemStatus}">{{item.itemTitle}}</a></li>
+                    <li v-for="item in card.items" v-show="item.itemTitle != ''"><a href="#" @click="isComplete(item, card)" v-bind:class="{'text-success text-decoration-none': item.itemStatus, 'text-danger text-decoration-none': !item.itemStatus}">{{item.itemTitle}}</a></li>
                 </ul>
               </div>
             </div>
@@ -133,32 +132,48 @@ Vue.component('col-1', {
         eventBus.$on('add-card', newCard => {
             this.firstCards.push(newCard)
         })
+        eventBus.$on('add-length', cardLength => {
+            this.cardLength = cardLength
+        })
     },
     methods: {
-        isComplete(item) {
-            item.itemStatus = !item.itemStatus
+        isComplete(item, card) {
+            if(this.cardLength === 5){
+            } else {
+                item.itemStatus = !item.itemStatus
+                this.id  = card.id
+                let countTrue = 0
+                let length = 0
+                for(let i in card.items){
+                    if(card.items[i].itemStatus === true && card.items[i].itemTitle !== ''){
+                        countTrue += 1
+                    }
+                }
+                for(let i in card.items){
+                    if(card.items[i].itemTitle !== ''){
+                        length += 1
+                    }
+                }
+                card.progress = countTrue / length
+                if(card.progress >= 0.5){
+                    let secondCard = {
+                        cardTitle: card.cardTitle,
+                        items: card.items,
+                        progress: card.progress,
+                        completeCard: card.completeCard,
+                        id: this.id,
+                    }
+                    eventBus.$emit('add-second-card', secondCard)
+                    if(card.id === this.id){
+                        let index = this.firstCards.findIndex(el => el.id === this.id)
+                        console.log(index)
+                        this.firstCards.splice(index, 1)
+                    }
+                    this.cardTitle = null
+                    this.items = null
+                }
+            }
         },
-        moveCard(card) {
-            let countTrue = 0
-            for(let i in card.items){
-                if(card.items[i].itemStatus === true){
-                    countTrue += 1
-                }
-            }
-            card.progress = countTrue / card.items.length
-            if(card.progress >= 0.5){
-                let secondCard = {
-                    cardTitle: card.cardTitle,
-                    items: card.items,
-                    progress: card.progress,
-                    completeCard: card.completeCard,
-                    id: card.id
-                }
-                eventBus.$emit('add-second-card', secondCard)
-                this.cardTitle = null
-                this.items = null
-            }
-        }
     },
     data() {
         return {
@@ -167,7 +182,8 @@ Vue.component('col-1', {
             completeCard: false,
             cardTitle: null,
             progress: 0,
-            id: 0
+            id: 0,
+            cardLength: null,
         }
     }
 })
@@ -175,8 +191,8 @@ Vue.component('col-1', {
 Vue.component('col-2', {
     template: `
     <div>
+        {{writing}}
         <div v-for="card in secondCards">
-            <button type="submit" class="btn btn-primary" @click="moveCard(card)">Check</button>
             <p>
                <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                 {{card.cardTitle}}
@@ -185,7 +201,7 @@ Vue.component('col-2', {
             <div class="collapse" id="collapseExample">
               <div class="card card-body">
                 <ul>  
-                    <li v-for="item in card.items" v-show="item.itemTitle != ''"><a href="#" @click="isComplete(item)" v-bind:class="{'text-success text-decoration-none': item.itemStatus, 'text-danger text-decoration-none': !item.itemStatus}">{{item.itemTitle}}</a></li>
+                    <li v-for="item in card.items" v-show="item.itemTitle != ''"><a href="#" @click="isComplete(item, card)" v-bind:class="{'text-success text-decoration-none': item.itemStatus, 'text-danger text-decoration-none': !item.itemStatus}">{{item.itemTitle}}</a></li>
                 </ul>
               </div>
             </div>
@@ -199,7 +215,9 @@ Vue.component('col-2', {
             completeCard: false,
             cardTitle: null,
             progress: 0,
-            id: 0
+            id: 0,
+            length: null,
+            date: null
         }
     },
     mounted() {
@@ -208,29 +226,46 @@ Vue.component('col-2', {
         })
     },
     methods: {
-        isComplete(item) {
+        isComplete(item, card) {
             item.itemStatus = !item.itemStatus
-        },
-        moveCard(card) {
+            this.id = card.id
             let countTrue = 0
+            let length = 0
             for(let i in card.items){
                 if(card.items[i].itemStatus === true){
                     countTrue += 1
                 }
             }
-            card.progress = countTrue / card.items.length
+            for(let i in card.items){
+                if(card.items[i].itemTitle !== ''){
+                    length += 1
+                }
+            }
+            card.progress = countTrue / length
             if(card.progress === 1){
                 let thirdCard = {
                     cardTitle: card.cardTitle,
                     items: card.items,
                     progress: card.progress,
                     completeCard: card.completeCard,
-                    id: card.id
+                    id: card.id,
+                    date: card.date
                 }
                 eventBus.$emit('add-third-card', thirdCard)
+                if(card.id === this.id){
+                    let index = this.secondCards.findIndex(el => el.id === this.id)
+                    this.secondCards.splice(index, 1)
+                }
                 this.cardTitle = null
                 this.items = null
             }
+        }
+    },
+    computed: {
+        writing() {
+            let cardLength = this.secondCards.length
+            eventBus.$emit('add-length', cardLength)
+            return cardLength
         }
     }
 })
@@ -276,5 +311,5 @@ let app = new Vue({
     el: '#app',
     data: {
         progress: ['<50%', '>50%', '100%'],
-    }
+    },
 })
