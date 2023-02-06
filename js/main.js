@@ -191,7 +191,6 @@ Vue.component('col-1', {
 Vue.component('col-2', {
     template: `
     <div>
-        {{writing}}
         <div v-for="card in secondCards">
             <p>
                <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
@@ -231,6 +230,8 @@ Vue.component('col-2', {
             this.id = card.id
             let countTrue = 0
             let length = 0
+            let cardDate = new Date().toLocaleString()
+            console.log(cardDate)
             for(let i in card.items){
                 if(card.items[i].itemStatus === true){
                     countTrue += 1
@@ -249,7 +250,7 @@ Vue.component('col-2', {
                     progress: card.progress,
                     completeCard: card.completeCard,
                     id: card.id,
-                    date: card.date
+                    date: cardDate
                 }
                 eventBus.$emit('add-third-card', thirdCard)
                 if(card.id === this.id){
@@ -284,6 +285,7 @@ Vue.component('col-3', {
                 <ul>  
                     <li v-for="item in card.items" v-show="item.itemTitle != ''"><a href="#" v-bind:class="{'text-success text-decoration-none': item.itemStatus, 'text-danger text-decoration-none': !item.itemStatus}">{{item.itemTitle}}</a></li>
                 </ul>
+                {{card.date}}
               </div>
             </div>
         </div>
