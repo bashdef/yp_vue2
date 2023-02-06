@@ -183,12 +183,12 @@ Vue.component('col-1', {
         eventBus.$on('add-length', cardLength => {
             this.cardLength = cardLength
         })
+        this.firstCards = JSON.parse(localStorage.getItem('firstCards')) || []
     },
     methods: {
         isComplete(item, card) {
             if(this.cardLength === 5){
             } else {
-                console.log(this.cardLength)
                 item.itemStatus = !item.itemStatus
                 this.id  = card.id
                 let countTrue = 0
@@ -233,6 +233,11 @@ Vue.component('col-1', {
             id: 0,
             cardLength: null,
         }
+    },
+    watch: {
+        firstCards(newValue, oldValue) {
+            localStorage.setItem('firstCards', JSON.stringify(newValue))
+        }
     }
 })
 
@@ -272,6 +277,7 @@ Vue.component('col-2', {
         eventBus.$on('add-second-card', secondCard => {
             this.secondCards.push(secondCard)
         })
+        this.secondCards = JSON.parse(localStorage.getItem('secondCards')) || []
     },
     methods: {
         isComplete(item, card) {
@@ -316,6 +322,11 @@ Vue.component('col-2', {
             eventBus.$emit('add-length', cardLength)
             return cardLength
         }
+    },
+    watch: {
+        secondCards(newValue, oldValue) {
+            localStorage.setItem('secondCards', JSON.stringify(newValue))
+        }
     }
 })
 
@@ -346,14 +357,19 @@ Vue.component('col-3', {
     },
     mounted() {
         eventBus.$on('add-third-card', thirdCard => {
-            console.log(thirdCard)
             this.thirdCards.push(thirdCard)
         })
+        this.thirdCards = JSON.parse(localStorage.getItem('thirdCards')) || []
     },
     methods: {
         isComplete(item) {
             item.itemStatus = !item.itemStatus
         },
+    },
+    watch: {
+        thirdCards(newValue, oldValue) {
+            localStorage.setItem('thirdCards', JSON.stringify(newValue))
+        }
     }
 })
 
