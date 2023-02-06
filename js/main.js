@@ -52,6 +52,9 @@ Vue.component('new-card', {
                 </div>
               </div>
               <div class="modal-footer" v-if="this.firstCards.length <= 2">
+                <ul>
+                    <li v-for="error in errors">{{ error }}</li>
+                </ul>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
                 <button type="submit" class="btn btn-outline-success" @click="addCard">Создать</button>
               </div>
@@ -93,17 +96,62 @@ Vue.component('new-card', {
                 }
                 newArr.push(item)
             }
-            let newCard = {
-                cardTitle: this.cardTitle,
-                items: newArr,
-                completeCard: this.completeCard,
-                progress: this.progress,
-                id: this.id,
+            if(this.cardTitle && this.item1 && this.item2 && this.item3 && this.item4 && this.item5) {
+                let newCard = {
+                    cardTitle: this.cardTitle,
+                    items: newArr,
+                    completeCard: this.completeCard,
+                    progress: this.progress,
+                    id: this.id,
+                }
+                eventBus.$emit('add-card', newCard)
+                this.id += 1
+                this.title = null
+                this.items = null
+                this.item1 = null
+                this.item2 = null
+                this.item3 = null
+                this.item4 = null
+                this.item5 = null
+            } else {
+                if(this.cardTitle && this.item1 && this.item2 && this.item3 && this.item4){
+                    let newCard = {
+                        cardTitle: this.cardTitle,
+                        items: newArr,
+                        completeCard: this.completeCard,
+                        progress: this.progress,
+                        id: this.id,
+                    }
+                    eventBus.$emit('add-card', newCard)
+                    this.id += 1
+                    this.title = null
+                    this.items = null
+                    this.item1 = null
+                    this.item2 = null
+                    this.item3 = null
+                    this.item4 = null
+                    this.item5 = null
+                } else {
+                    if(this.cardTitle && this.item1 && this.item2 && this.item3){
+                        let newCard = {
+                            cardTitle: this.cardTitle,
+                            items: newArr,
+                            completeCard: this.completeCard,
+                            progress: this.progress,
+                            id: this.id,
+                        }
+                        eventBus.$emit('add-card', newCard)
+                        this.id += 1
+                        this.title = null
+                        this.items = null
+                        this.item1 = null
+                        this.item2 = null
+                        this.item3 = null
+                        this.item4 = null
+                        this.item5 = null
+                    }
+                }
             }
-            eventBus.$emit('add-card', newCard)
-            this.id += 1
-            this.title = null
-            this.items = null
         }
     },
 })
@@ -140,6 +188,7 @@ Vue.component('col-1', {
         isComplete(item, card) {
             if(this.cardLength === 5){
             } else {
+                console.log(this.cardLength)
                 item.itemStatus = !item.itemStatus
                 this.id  = card.id
                 let countTrue = 0
@@ -166,7 +215,6 @@ Vue.component('col-1', {
                     eventBus.$emit('add-second-card', secondCard)
                     if(card.id === this.id){
                         let index = this.firstCards.findIndex(el => el.id === this.id)
-                        console.log(index)
                         this.firstCards.splice(index, 1)
                     }
                     this.cardTitle = null
@@ -191,6 +239,7 @@ Vue.component('col-1', {
 Vue.component('col-2', {
     template: `
     <div>
+        <p v-show="this.secondCards.length >= 100">{{writing}}</p>
         <div v-for="card in secondCards">
             <p>
                <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
@@ -231,7 +280,6 @@ Vue.component('col-2', {
             let countTrue = 0
             let length = 0
             let cardDate = new Date().toLocaleString()
-            console.log(cardDate)
             for(let i in card.items){
                 if(card.items[i].itemStatus === true){
                     countTrue += 1
